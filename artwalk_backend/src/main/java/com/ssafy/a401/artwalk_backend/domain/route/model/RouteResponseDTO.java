@@ -18,5 +18,5 @@ public class RouteResponseDTO {
 	private String code;
 
 	@Schema(description = "경로 데이터", example = "요청에 따른 경로 데이터")
-	private Route route;
+	private RouteDTO routeDTO;
 }
