@@ -198,9 +198,4 @@ export default {
 
 <style scoped>
 
-.b-table /deep/ > thead > tr :nth-child(3),
-.b-table /deep/ > tbody > tr :nth-child(3),
-.b-table /deep/ > tfoot > tr :nth-child(3) {
-  border-left: 3px solid #000;
-}
 </style>

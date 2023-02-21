@@ -2,7 +2,7 @@
   <b-container>
 
     <div class="d-flex justify-content-center align-content-center my-5">
-      <h2>{{ record.userId }}'s &nbsp; {{ record.title }} </h2>
+      <h2>{{ nickname }}'s &nbsp; {{ record.title }} </h2>
     </div>
 
     <!--  레코드 정보  -->
@@ -13,6 +13,7 @@
       <b-col class="col-2 f-size">
         <div class="my-3">Record Id</div>
         <div class="my-3">User Id</div>
+        <div class="my-3">Nick Name</div>
         <div class="my-3">Title</div>
         <div class="my-3">Duration</div>
         <div class="my-3">Distance</div>
@@ -21,6 +22,7 @@
       <b-col class="col-5 f-size">
         <div class="fw-bold my-3">{{ record.recordId }}&nbsp;</div>
         <div class="fw-bold my-3">{{ record.userId }}&nbsp;</div>
+        <div class="fw-bold my-3">{{ nickname }}&nbsp;</div>
         <div v-if="record.title" class="fw-bold my-3">{{ record.title }}&nbsp;</div>
         <div v-else class="fw-bold my-3">No Title&nbsp;</div>
         <div class="fw-bold my-3">{{ formattedDuration }}&nbsp;</div>
@@ -81,6 +83,12 @@ export default {
       formattedDistance: null,
       pw: null,
       pwState: null,
+      nickname: null,
+    }
+  },
+  computed: {
+    allUsers() {
+      return this.$store.state.user
     }
   },
   created() {
@@ -98,6 +106,7 @@ export default {
             this.formattedCreation = dayjs(this.record.creation).format('YYYY/MM/DD')
             this.formattedDistance = Math.round(this.record.distance).toLocaleString('ko-KR') + " M"
             this.getTimeStringSeconds(this.record.duration)
+            this.getNickName()
           })
           .catch((err) => {
             this.err = err
@@ -167,6 +176,13 @@ export default {
             // console.error(err)
           })
     },
+    getNickName() {
+      for (var i = 0; i<this.allUsers.length; i++) {
+        if (this.allUsers[i].userId === this.record.userId) {
+          this.nickname = this.allUsers[i].nickname
+        }
+      }
+    }
   }
 }
 </script>

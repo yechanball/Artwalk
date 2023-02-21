@@ -135,7 +135,7 @@ public class RecordRestController {
 	public ResponseEntity<RecordListResponseDTO> recordListSearch(@RequestParam(name = "type") String type, @RequestParam(name = "keyword") String keyword) {
 		List<Record> records = null;
 
-		if(type.equals("userId")) records = recordService.findByUserIdContaining(keyword);
+		if(type.equals("nickname")) records = recordService.findByNickNameContaining(keyword);
 		else if (type.equals("title")) records = recordService.findByTitleContaining(keyword);
 
 		if(records != null) return ResponseEntity.ok().body(new RecordListResponseDTO(OK, records));

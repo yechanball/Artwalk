@@ -7,6 +7,8 @@ import java.util.Random;
 
 import javax.transaction.Transactional;
 
+import com.ssafy.a401.artwalk_backend.domain.user.model.User;
+import com.ssafy.a401.artwalk_backend.domain.user.repository.UserRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RecordService {
 
+	private final UserRepository userRepository;
 	private final RecordRepository recordRepository;
 	private final FileService fileService;
 
@@ -154,16 +157,21 @@ public class RecordService {
 		return result;
 	}
 
-	public List<Record> findByUserIdContaining(String userId) {
+	public List<Record> findByNickNameContaining(String nickname) {
 		List<Record> recordList = new ArrayList<>();
-		List<Record> records = recordRepository.findByUserIdContainingOrderByRecordIdDesc(userId);
-		for (Record record : records) {
+		List<Record> records = new ArrayList<>();
+
+		List<User> userList = userRepository.findByNicknameContaining(nickname);
+		for (User user : userList) {
+			recordList.addAll(findByUserId(user.getUserId()));
+		}
+		for (Record record : recordList) {
 			record.setThumbnail(makeThumbnailUrl(record.getRecordId()));
 			record.setRecentImage(makeImageUrl(record.getRecordId()));
-			record.setGeometry(fileService.readFile(fileOption, record.getGeometry(), userId));
-			recordList.add(record);
+			record.setGeometry(fileService.readFile(fileOption, record.getGeometry(), record.getUserId()));
+			records.add(record);
 		}
-		return recordList;
+		return records;
 	}
 
 	public List<Record> findByTitleContaining(String title) {

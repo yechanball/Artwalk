@@ -76,7 +76,7 @@ export default {
       selectedDropdownItem: "not Selected",
       searchKeyword: null,
       searchedRoutes: null,
-      options: ['userId', 'maker', 'title'],
+      options: ['nickname', 'title'],
       perPage: 12,
       pageNum: 1
     }

@@ -18,7 +18,7 @@
 
       <b-card-text>
         <p>Record Id : {{ record.recordId }}</p>
-        <p>{{ record.userId }}</p>
+        <p>{{ nickname }}</p>
         <p>{{ formattedCreation }}</p>
       </b-card-text>
 
@@ -47,11 +47,18 @@ export default {
       formattedDuration: null,
       formattedDistance: Math.round(this.record.distance).toLocaleString('ko-KR') + " M",
       thumbUrl: null,
+      nickname: null,
     }
+  },
+  computed: {
+    allUsers() {
+      return this.$store.state.user
+      }
   },
   created() {
     this.getTimeStringSeconds(this.record.duration)
     this.getRecordImage()
+    this.getNickName()
   },
   methods: {
     goDetail() {
@@ -83,6 +90,13 @@ export default {
             this.thumbUrl = URL.createObjectURL(blob)
           })
     },
+    getNickName() {
+      for (var i = 0; i<this.allUsers.length; i++) {
+        if (this.allUsers[i].userId === this.record.userId) {
+          this.nickname = this.allUsers[i].nickname
+        }
+      }
+    }
   },
 }
 </script>
