@@ -19,12 +19,15 @@ import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.PuckBearingSource
+import com.mapbox.maps.plugin.compass.CompassView
+import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorBearingChangedListener
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.locationcomponent.location2
+import com.mapbox.maps.plugin.scalebar.scalebar
 import java.lang.ref.WeakReference
 
 
@@ -82,6 +85,10 @@ abstract class UsingMapFragment<T: ViewDataBinding>(layoutId: Int): BaseFragment
     }
 
     private fun onMapReady() {
+        mapView.scalebar.enabled = false
+        mapView.compass.updateSettings {
+            enabled = false
+        }
         mapView.getMapboxMap().setCamera(
             CameraOptions.Builder()
                 .zoom(14.0)

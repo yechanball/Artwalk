@@ -6,8 +6,7 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/neutral03</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <!-- Customize your theme here. -->>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>

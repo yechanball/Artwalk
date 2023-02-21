@@ -20,8 +20,7 @@
         <Button
             android:background="@drawable/square_type_button"
             android:id="@+id/button_routeDraw_save"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="20dp"
+            android:layout_margin="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_width="wrap_content"
@@ -54,7 +53,9 @@
             android:background="@drawable/circle_ic_button_bg"
             android:backgroundTint="@color/toggle_button_bg_tint"
             android:checked="false"
-            android:onClick="@{() -> vm.onClickDrawButton()}"/>
+            android:onClick="@{() -> vm.onClickDrawButton()}"
+            android:layout_marginEnd="16dp"
+            android:layout_marginVertical="8dp"/>
 
         <ImageButton
             android:id="@+id/textView_routeDraw_undoButton"
@@ -66,7 +67,8 @@
             app:tint="@color/press_button_fg_tint"
             android:background="@drawable/circle_ic_button_bg"
             android:backgroundTint="@color/press_button_bg_tint"
-            android:onClick="@{() -> vm.onClickUndoButton()}"/>
+            android:onClick="@{() -> vm.onClickUndoButton()}"
+            android:layout_marginVertical="8dp" />
 
         <View
             android:id="@+id/view_routeDraw_infoBox"

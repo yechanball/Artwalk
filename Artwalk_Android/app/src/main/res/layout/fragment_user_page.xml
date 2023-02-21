@@ -18,7 +18,6 @@
             type="com.a401.artwalk.view.record.list.ThumbnailClickListener" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

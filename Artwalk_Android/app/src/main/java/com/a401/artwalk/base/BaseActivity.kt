@@ -1,10 +1,7 @@
 package com.a401.artwalk.base
 
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -29,7 +26,7 @@ abstract class BaseActivity<T : ViewDataBinding>(private val layoutId: Int) : Ap
             WindowCompat.setDecorFitsSystemWindows(window, false)
         }
 
-        val statusResourceId = resources.getIdentifier("statue_bar_height", "dimen", "android")
+        val statusResourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
         val statusBarHeight = if(statusResourceId > 0) {resources.getDimensionPixelSize(statusResourceId)} else 0
 
         val navigationResourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")

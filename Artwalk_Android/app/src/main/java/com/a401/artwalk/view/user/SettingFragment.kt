@@ -30,6 +30,10 @@ class SettingFragment: BaseFragment<FragmentSettingBinding>(R.layout.fragment_se
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.ImageButtonSettingBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         binding.LinearLayoutSettingHowToUse.setOnClickListener {
             lifecycleScope.launch {
                 val url = "https://i8a401.p.ssafy.io/howto"
