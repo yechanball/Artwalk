@@ -20,5 +20,5 @@ public class RouteListResponseDTO {
 	private String code;
 
 	@Schema(description = "경로 배열", example = "요청에 따른 경로 목록 데이터 배열")
-	private List<Route> routes;
+	private List<RouteDTO> routes;
 }

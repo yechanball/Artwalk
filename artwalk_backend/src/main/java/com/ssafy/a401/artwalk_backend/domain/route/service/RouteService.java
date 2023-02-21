@@ -3,6 +3,7 @@ package com.ssafy.a401.artwalk_backend.domain.route.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -10,21 +11,24 @@ import org.springframework.stereotype.Service;
 
 import com.ssafy.a401.artwalk_backend.domain.common.service.FileService;
 import com.ssafy.a401.artwalk_backend.domain.route.model.Route;
+import com.ssafy.a401.artwalk_backend.domain.route.model.RouteDTO;
 import com.ssafy.a401.artwalk_backend.domain.route.repository.RouteRepository;
+import com.ssafy.a401.artwalk_backend.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class RouteService {
-
+	private static ModelMapper modelMapper = new ModelMapper();
 	private final RouteRepository routeRepository;
 	private final FileService fileService;
+	private final UserService userService;
 
 	private static String fileOption = "route";
 
-	public Route addRoute(Route route, String userId) {
-		Route result = null;
+	public RouteDTO addRoute(Route route, String userId) {
+		RouteDTO result = null;
 
 		route.setUserId(userId);
 		route.setMaker(userId); // TODO: 경로 사용자/최초생성자 관련 기능 추후 추가 예정
@@ -36,13 +40,16 @@ public class RouteService {
 		String thumbPath = fileService.saveThumbnail(fileOption, geometryPath, geometry, userId);
 		route.setThumbnail(thumbPath);
 
-		result = routeRepository.save(route);
+		Route saveRoute = routeRepository.save(route);
+
+		result = modelMapper.map(saveRoute, RouteDTO.class);
+		result.setNickname(userService.findUserDetail(result.getUserId()).getNickname());
 
 		return result;
 	}
 
-	public Route modifyRoute(Route originRoute, Route newRoute, String userId) {
-		Route result = null;
+	public RouteDTO modifyRoute(Route originRoute, Route newRoute, String userId) {
+		RouteDTO result = null;
 
 		originRoute.setUserId(userId);
 
@@ -55,7 +62,8 @@ public class RouteService {
 		fileService.removeFile(fileOption, originRoute.getThumbnail(), userId);
 		originRoute.setThumbnail(thumbPath);
 
-		result = routeRepository.save(originRoute);
+		Route saveRoute = routeRepository.save(originRoute);
+		result = modelMapper.map(saveRoute, RouteDTO.class);
 
 		return result;
 	}
@@ -75,31 +83,39 @@ public class RouteService {
 	}
 
 	/** 저장된 모든 경로를 반환합니다. */
-	public List<Route> findAllRoute() {
-		List<Route> routeList = new ArrayList<>();
+	public List<RouteDTO> findAllRoute() {
+		List<RouteDTO> routeList = new ArrayList<>();
 		List<Route> routes = routeRepository.findAll(Sort.by(Sort.Direction.DESC, "routeId"));
 		for (Route route : routes) {
-			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
-			routeList.add(route);
+			RouteDTO routeItem = modelMapper.map(route, RouteDTO.class);
+			routeItem.setNickname(userService.findUserDetail(route.getUserId()).getNickname());
+			routeItem.setThumbnail(makeThumbnailUrl(route.getRouteId()));
+			routeItem.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
+			routeList.add(routeItem);
 		}
 		return routeList;
 	}
 
 	/** 저장된 경로 중 route_id가 일치하는 경로를 반환합니다. */
-	public Route findByRouteId(int routeId) {
+	public RouteDTO findByRouteId(int routeId) {
 		Route route = routeRepository.findById(routeId).get();
-		return route;
+
+		RouteDTO result = modelMapper.map(route, RouteDTO.class);
+		result.setNickname(userService.findUserDetail(result.getUserId()).getNickname());
+
+		return result;
 	}
 
 	/** 저장된 경로 중 user_id가 일치하는 경로를 반환합니다. */
-	public List<Route> findByUserId(String userId) {
-		List<Route> routeList = new ArrayList<>();
+	public List<RouteDTO> findByUserId(String userId) {
+		List<RouteDTO> routeList = new ArrayList<>();
 		List<Route> routes = routeRepository.findByUserIdOrderByRouteIdDesc(userId);
 		for (Route route : routes) {
-			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), userId));
-			routeList.add(route);
+			RouteDTO routeItem = modelMapper.map(route, RouteDTO.class);
+			routeItem.setNickname(userService.findUserDetail(route.getUserId()).getNickname());
+			routeItem.setThumbnail(makeThumbnailUrl(route.getRouteId()));
+			routeItem.setGeometry(fileService.readFile(fileOption, route.getGeometry(), userId));
+			routeList.add(routeItem);
 		}
 		return routeList;
 	}
@@ -118,35 +134,41 @@ public class RouteService {
 		return thumbUrl;
 	}
 
-	public List<Route> findByUserIdContaining(String userId) {
-		List<Route> routeList = new ArrayList<>();
+	public List<RouteDTO> findByUserIdContaining(String userId) {
+		List<RouteDTO> routeList = new ArrayList<>();
 		List<Route> routes = routeRepository.findByUserIdContainingOrderByRouteIdDesc(userId);
 		for (Route route : routes) {
-			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), userId));
-			routeList.add(route);
+			RouteDTO routeItem = modelMapper.map(route, RouteDTO.class);
+			routeItem.setNickname(userService.findUserDetail(route.getUserId()).getNickname());
+			routeItem.setThumbnail(makeThumbnailUrl(route.getRouteId()));
+			routeItem.setGeometry(fileService.readFile(fileOption, route.getGeometry(), userId));
+			routeList.add(routeItem);
 		}
 		return routeList;
 	}
 
-	public List<Route> findByMakerContaining(String maker) {
-		List<Route> routeList = new ArrayList<>();
+	public List<RouteDTO> findByMakerContaining(String maker) {
+		List<RouteDTO> routeList = new ArrayList<>();
 		List<Route> routes = routeRepository.findByMakerContainingOrderByRouteIdDesc(maker);
 		for (Route route : routes) {
-			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
-			routeList.add(route);
+			RouteDTO routeItem = modelMapper.map(route, RouteDTO.class);
+			routeItem.setNickname(userService.findUserDetail(route.getUserId()).getNickname());
+			routeItem.setThumbnail(makeThumbnailUrl(route.getRouteId()));
+			routeItem.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
+			routeList.add(routeItem);
 		}
 		return routeList;
 	}
 
-	public List<Route> findByTitleContaining(String title) {
-		List<Route> routeList = new ArrayList<>();
+	public List<RouteDTO> findByTitleContaining(String title) {
+		List<RouteDTO> routeList = new ArrayList<>();
 		List<Route> routes = routeRepository.findByTitleContainingOrderByRouteIdDesc(title);
 		for (Route route : routes) {
-			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
-			routeList.add(route);
+			RouteDTO routeItem = modelMapper.map(route, RouteDTO.class);
+			routeItem.setNickname(userService.findUserDetail(route.getUserId()).getNickname());
+			routeItem.setThumbnail(makeThumbnailUrl(route.getRouteId()));
+			routeItem.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
+			routeList.add(routeItem);
 		}
 		return routeList;
 	}

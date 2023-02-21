@@ -22,6 +22,7 @@ import com.ssafy.a401.artwalk_backend.domain.admin.model.AdminDTO;
 import com.ssafy.a401.artwalk_backend.domain.admin.model.PasswordDTO;
 import com.ssafy.a401.artwalk_backend.domain.admin.service.AdminService;
 import com.ssafy.a401.artwalk_backend.domain.common.model.CountResponseDTO;
+import com.ssafy.a401.artwalk_backend.domain.route.model.RouteDTO;
 import com.ssafy.a401.artwalk_backend.domain.route.model.RouteListResponseDTO;
 import com.ssafy.a401.artwalk_backend.domain.route.model.RouteRequestDTO;
 import com.ssafy.a401.artwalk_backend.domain.route.model.RouteResponseDTO;
@@ -51,7 +52,7 @@ public class RouteRestController {
 	public ResponseEntity<RouteResponseDTO> routeAdd(@RequestBody RouteRequestDTO routeRequestDTO, @ApiIgnore Authentication authentication){
 		String userId = authentication.getName();
 		Route route = modelMapper.map(routeRequestDTO, Route.class);
-		Route result = routeService.addRoute(route, userId);
+		RouteDTO result = routeService.addRoute(route, userId);
 
 		if(result != null) return ResponseEntity.ok().body(new RouteResponseDTO(OK, result));
 		else return ResponseEntity.badRequest().body(new RouteResponseDTO(FAIL, null));
@@ -61,10 +62,10 @@ public class RouteRestController {
 	@ApiImplicitParam(name = "routeId", value = "조회할 경로 ID", dataType = "int")
 	@GetMapping("/{routeId}")
 	public ResponseEntity<RouteResponseDTO> routeDetails(@PathVariable("routeId") int routeId) {
-		Route route = routeService.findByRouteId(routeId);
+		RouteDTO route = routeService.findByRouteId(routeId);
 		if(route != null) {
 			route.setThumbnail(routeService.makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(routeService.readGeometryFile(route));
+			route.setGeometry(routeService.readGeometryFile(modelMapper.map(route, Route.class)));
 			return ResponseEntity.ok().body(new RouteResponseDTO(OK, route));
 		}
 		else return ResponseEntity.badRequest().body(new RouteResponseDTO(FAIL, null));
@@ -75,9 +76,9 @@ public class RouteRestController {
 	@PutMapping("/{routeId}")
 	public ResponseEntity<RouteResponseDTO> routeModify(@PathVariable("routeId") int routeId, @RequestBody RouteRequestDTO routeRequestDTO, @ApiIgnore Authentication authentication) {
 		String userId = authentication.getName();
-		Route originRoute  = routeService.findByRouteId(routeId);
+		RouteDTO originRoute  = routeService.findByRouteId(routeId);
 		Route route = modelMapper.map(routeRequestDTO, Route.class);
-		Route result = routeService.modifyRoute(originRoute, route, userId);
+		RouteDTO result = routeService.modifyRoute(modelMapper.map(originRoute, Route.class), route, userId);
 
 		if(result != null) return ResponseEntity.ok().body(new RouteResponseDTO(OK, result));
 		else return ResponseEntity.badRequest().body(new RouteResponseDTO(FAIL, null));
@@ -87,8 +88,8 @@ public class RouteRestController {
 	@ApiImplicitParam(name = "routeId", value = "삭제할 경로 ID", dataType = "int")
 	@DeleteMapping("/{routeId}")
 	public ResponseEntity<CountResponseDTO> routeRemove(@PathVariable("routeId") int routeId) {
-		Route route = routeService.findByRouteId(routeId);
-		long result = routeService.removeRoute(route);
+		RouteDTO route = routeService.findByRouteId(routeId);
+		long result = routeService.removeRoute(modelMapper.map(route, Route.class));
 
 		if(result == 0) return ResponseEntity.ok().body(new CountResponseDTO(OK, result));
 		else return ResponseEntity.badRequest().body(new CountResponseDTO(FAIL, result));
@@ -97,13 +98,13 @@ public class RouteRestController {
 	@Operation(summary = "관리자용 사용자 경로 삭제", description = "사용자 경로 삭제 메서드입니다. Path에 삭제할 기록 ID와 request body에 password(관리자 비밀번호)를 담아 요청합니다.")
 	@DeleteMapping("/admin/{routeId}")
 	public ResponseEntity<CountResponseDTO> routeRemoveAdmin(@RequestBody PasswordDTO passwordDTO, @PathVariable("routeId") int routeId, @ApiIgnore Authentication authentication) {
-		Route route = routeService.findByRouteId(routeId);
+		RouteDTO route = routeService.findByRouteId(routeId);
 		AdminDTO adminDTO = modelMapper.map(passwordDTO, AdminDTO.class);
 		adminDTO.setUserId(authentication.getName());
 		int result = adminService.checkPassword(adminDTO);
 
 		if (result == 0) {
-			long res = routeService.removeRoute(route);
+			long res = routeService.removeRoute(modelMapper.map(route, Route.class));
 			if (res == 0) return ResponseEntity.ok().body(new CountResponseDTO(OK, result));
 			else return ResponseEntity.badRequest().body(new CountResponseDTO(FAIL, result));
 		}
@@ -114,7 +115,7 @@ public class RouteRestController {
 	@ApiImplicitParam(name = "user", value = "true: accessToken과 일치하는 사용자의 경로 목록을 반환합니다. ||  false: 모든 사용자의 경로 목록을 반환합니다.", dataType = "boolean")
 	@GetMapping("/list")
 	public ResponseEntity<RouteListResponseDTO> routeList(@RequestParam(name="user") boolean searchForUser, @ApiIgnore Authentication authentication) {
-		List<Route> routes = null;
+		List<RouteDTO> routes = null;
 
 		if(searchForUser) {
 			String userId = authentication.getName();
@@ -134,7 +135,7 @@ public class RouteRestController {
 	})
 	@GetMapping("/search")
 	public ResponseEntity<RouteListResponseDTO> routeListSearch(@RequestParam(name = "type") String type, @RequestParam(name = "keyword") String keyword) {
-		List<Route> routes = null;
+		List<RouteDTO> routes = null;
 
 		if(type.equals("userId")) routes = routeService.findByUserIdContaining(keyword);
 		else if (type.equals("maker")) routes = routeService.findByMakerContaining(keyword);
@@ -148,7 +149,7 @@ public class RouteRestController {
 	@ApiImplicitParam(name = "userId", value = "경로 목록을 조회할 사용자 ID (예시. ssafy@ssafy.com)", dataType = "String")
 	@GetMapping("/list/{userId}")
 	public ResponseEntity<RouteListResponseDTO> routeListByUserId(@PathVariable("userId") String userId){
-		List<Route> routes = null;
+		List<RouteDTO> routes = null;
 
 		routes = routeService.findByUserId(userId);
 
@@ -168,8 +169,8 @@ public class RouteRestController {
 	@ApiImplicitParam(name = "routeId", value = "조회할 경로 ID", dataType = "int")
 	@GetMapping("/thumb/{routeId}")
 	public ResponseEntity<Resource> displayRouteThumbnail(@PathVariable("routeId") int routeId) {
-		Route route = routeService.findByRouteId(routeId);
-		ResponseEntity<Resource> response = routeService.getThumbnailImage(route);
+		RouteDTO route = routeService.findByRouteId(routeId);
+		ResponseEntity<Resource> response = routeService.getThumbnailImage(modelMapper.map(route, Route.class));
 		return response;
 	}
 }
