@@ -136,8 +136,7 @@ public class RouteRestController {
 	public ResponseEntity<RouteListResponseDTO> routeListSearch(@RequestParam(name = "type") String type, @RequestParam(name = "keyword") String keyword) {
 		List<Route> routes = null;
 
-		if(type.equals("userId")) routes = routeService.findByUserIdContaining(keyword);
-		else if (type.equals("maker")) routes = routeService.findByMakerContaining(keyword);
+		if(type.equals("nickname")) routes = routeService.findByNicknameContaining(keyword);
 		else if (type.equals("title")) routes = routeService.findByTitleContaining(keyword);
 
 		if(routes != null) return ResponseEntity.ok().body(new RouteListResponseDTO(OK, routes));

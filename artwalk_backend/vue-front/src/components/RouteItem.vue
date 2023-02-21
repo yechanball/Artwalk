@@ -14,12 +14,12 @@
 
       <b-card-text>
         <p>Route Id : {{ route.routeId }}</p>
-        <p>{{ route.userId }}</p>
+        <p>{{ nickname }}</p>
         <p>{{ formattedCreation }}</p>
       </b-card-text>
 
       <b-card-sub-title>
-        <p>Made by - {{ route.maker }}</p>
+        <p>Made by - {{ nickname }}</p>
       </b-card-sub-title>
 
     </b-card>
@@ -39,11 +39,18 @@ export default {
     return {
       date: this.route.creation,
       formattedCreation: dayjs(this.date).format('YYYY/MM/DD'),
-      thumbUrl: null
+      thumbUrl: null,
+      nickname: null,
+    }
+  },
+  computed: {
+    allUsers() {
+      return this.$store.state.user
     }
   },
   created() {
     this.getRouteImage()
+    this.getNickName()
   },
   methods: {
     goDetail() {
@@ -65,6 +72,13 @@ export default {
             this.thumbUrl = URL.createObjectURL(blob)
           })
     },
+    getNickName() {
+      for (var i = 0; i<this.allUsers.length; i++) {
+        if (this.allUsers[i].userId === this.route.userId) {
+          this.nickname = this.allUsers[i].nickname
+        }
+      }
+    }
   }
 }
 </script>

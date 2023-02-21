@@ -3,6 +3,8 @@ package com.ssafy.a401.artwalk_backend.domain.route.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ssafy.a401.artwalk_backend.domain.user.model.User;
+import com.ssafy.a401.artwalk_backend.domain.user.repository.UserRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RouteService {
 
+	private final UserRepository userRepository;
 	private final RouteRepository routeRepository;
 	private final FileService fileService;
 
@@ -118,15 +121,19 @@ public class RouteService {
 		return thumbUrl;
 	}
 
-	public List<Route> findByUserIdContaining(String userId) {
+	public List<Route> findByNicknameContaining(String nickname) {
 		List<Route> routeList = new ArrayList<>();
-		List<Route> routes = routeRepository.findByUserIdContainingOrderByRouteIdDesc(userId);
-		for (Route route : routes) {
-			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
-			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), userId));
-			routeList.add(route);
+		List<Route> routes = new ArrayList<>();
+		List<User> userList = userRepository.findByNicknameContaining(nickname);
+		for (User user : userList) {
+			routeList.addAll(findByUserId(user.getUserId()));
 		}
-		return routeList;
+		for (Route route : routeList) {
+			route.setThumbnail(makeThumbnailUrl(route.getRouteId()));
+			route.setGeometry(fileService.readFile(fileOption, route.getGeometry(), route.getUserId()));
+			routes.add(route);
+		}
+		return routes;
 	}
 
 	public List<Route> findByMakerContaining(String maker) {

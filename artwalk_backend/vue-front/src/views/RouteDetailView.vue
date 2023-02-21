@@ -2,7 +2,7 @@
   <b-container>
 
     <div class="d-flex justify-content-center align-content-center my-5">
-      <h2>{{ route.userId }}'s &nbsp; {{ route.title }} </h2>
+      <h2>{{ nickname }}'s &nbsp; {{ route.title }} </h2>
     </div>
 
     <!--  루트 정보  -->
@@ -13,7 +13,7 @@
       <b-col class="col-2 f-size">
         <div class="my-3">Route Id</div>
         <div class="my-3">User Id</div>
-        <div class="my-3">Maker</div>
+        <div class="my-3">Nick Name</div>
         <div class="my-3">Title</div>
         <div class="my-3">Duration</div>
         <div class="my-3">Distance</div>
@@ -22,7 +22,7 @@
       <b-col class="col-5 f-size">
         <div class="fw-bold my-3">{{ route.routeId }}</div>
         <div class="fw-bold my-3">{{ route.userId }}</div>
-        <div class="fw-bold my-3">{{ route.maker }}</div>
+        <div class="fw-bold my-3">{{ nickname }}&nbsp;</div>
         <div class="fw-bold my-3">{{ route.title }}</div>
         <div class="fw-bold my-3">{{ formattedDuration }}</div>
         <div class="fw-bold my-3">{{ formattedDistance }}</div>
@@ -80,6 +80,12 @@ export default {
       formattedDistance: null,
       pw: null,
       pwState: null,
+      nickname: null,
+    }
+  },
+  computed: {
+    allUsers() {
+      return this.$store.state.user
     }
   },
   created() {
@@ -97,6 +103,7 @@ export default {
             this.formattedCreation = dayjs(this.route.creation).format('YYYY/MM/DD')
             this.formattedDistance = Math.round(this.route.distance).toLocaleString('ko-KR') + " M"
             this.getTimeStringSeconds(this.route.duration)
+            this.getNickName()
           })
           .catch((err) => {
             this.err = err
@@ -165,6 +172,13 @@ export default {
             // console.error(err)
           })
     },
+    getNickName() {
+      for (var i = 0; i<this.allUsers.length; i++) {
+        if (this.allUsers[i].userId === this.route.userId) {
+          this.nickname = this.allUsers[i].nickname
+        }
+      }
+    }
   }
 }
 </script>
